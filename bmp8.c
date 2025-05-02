@@ -3,16 +3,11 @@
 t_bmp8 *bmp8_loadImage(const char *filename) {
     FILE *file = fopen(filename, "rb");
     if (!file) {
-        perror("Error opening file");
+        printf("Error opening file");
         return NULL;
     }
 
     t_bmp8 *img = (t_bmp8 *)malloc(sizeof(t_bmp8));
-    if (!img) {
-        perror("Error allocating memory for image");
-        fclose(file);
-        return NULL;
-    }
 
     // Read the header
     fread(img->header, sizeof(unsigned char), 54, file);
@@ -72,4 +67,36 @@ void bmp8_printInfo(t_bmp8 *img) {
         printf("Color Depth: %u\n", img->colorDepth);
         printf("Data Size: %u bytes\n", img->dataSize);
     }
+}
+
+void bmp8_negative(t_bmp8 *img) {
+    if (!img || !img->data) return;
+
+    for (unsigned int i = 0; i < img->dataSize; i++) {
+        img->data[i] = 255 - img->data[i];
+    }
+    bmp8_saveImage("amg.bmp", img);
+}
+
+void bmp8_brightness(t_bmp8 *img, int value) {
+    if (!img || !img->data) return;
+
+    for (unsigned int i = 0; i < img->dataSize; ++i) {
+        int newVal = img->data[i] + value;
+
+        if (newVal > 255) newVal = 255;
+        else if (newVal < 0) newVal = 0;
+
+        img->data[i] = (unsigned char)newVal;
+    }
+    bmp8_saveImage("amg.bmp", img);
+}
+
+void bmp8_threshold(t_bmp8 *img, int threshold) {
+    if (!img || !img->data) return;
+
+    for (unsigned int i = 0; i < img->dataSize; ++i) {
+        img->data[i] = (img->data[i] >= threshold) ? 255 : 0;
+    }
+    bmp8_saveImage("amg.bmp", img);
 }
