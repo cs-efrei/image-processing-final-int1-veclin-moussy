@@ -198,7 +198,7 @@ float** init_kernel() {
 
 
 void bmp8_applyFilter(t_bmp8 *img, float **kernel) {
-    int n = 3/2;
+    int n = 1;
     unsigned char *tempData = (unsigned char *)malloc(img->dataSize);
     int width = img->width;
     int height = img->height;
