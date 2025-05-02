@@ -100,3 +100,132 @@ void bmp8_threshold(t_bmp8 *img, int threshold) {
     }
     bmp8_saveImage("amg.bmp", img);
 }
+
+float** create_kernel(float data[3][3]) {
+    float** kernel = (float**)malloc(3 * sizeof(float*));
+    for (int i = 0; i < 3; i++) {
+        kernel[i] = (float*)malloc(3 * sizeof(float));
+        for (int j = 0; j < 3; j++) {
+            kernel[i][j] = data[i][j];
+        }
+    }
+    return kernel;
+}
+
+
+void free_kernel(float** kernel) {
+    for (int i = 0; i < 3; i++) {
+        free(kernel[i]);
+    }
+    free(kernel);
+}
+
+
+float** init_kernel() {
+    float box_blur[3][3] = {
+        {1.0/9, 1.0/9, 1.0/9},
+        {1.0/9, 1.0/9, 1.0/9},
+        {1.0/9, 1.0/9, 1.0/9}
+    };
+
+    float gaussian_blur[3][3] = {
+        {1.0/16, 2.0/16, 1.0/16},
+        {2.0/16, 4.0/16, 2.0/16},
+        {1.0/16, 2.0/16, 1.0/16}
+    };
+
+    float outline[3][3] = {
+        {-1, -1, -1},
+        {-1,  8, -1},
+        {-1, -1, -1}
+    };
+
+    float emboss[3][3] = {
+        {-2, -1,  0},
+        {-1,  1,  1},
+        { 0,  1,  2}
+    };
+
+    float sharpen[3][3] = {
+        { 0, -1,  0},
+        {-1,  5, -1},
+        { 0, -1,  0}
+    };
+
+    int choice;
+    float** output = NULL;
+
+    while (1) {
+        printf("\nSelect a filter:\n");
+        printf("1. Box blur\n");
+        printf("2. Gaussian blur\n");
+        printf("3. Outline\n");
+        printf("4. Emboss\n");
+        printf("5. Sharpen\n");
+        printf("Enter your choice (1-5): ");
+
+        if (scanf("%d", &choice) != 1) {
+            printf("Invalid input. Please enter a number.\n");
+            while (getchar() != '\n'); // Clear input buffer
+            continue;
+        }
+
+        switch(choice) {
+            case 1:
+                output = create_kernel(box_blur);
+            break;
+            case 2:
+                output = create_kernel(gaussian_blur);
+            break;
+            case 3:
+                output = create_kernel(outline);
+            break;
+            case 4:
+                output = create_kernel(emboss);
+            break;
+            case 5:
+                output = create_kernel(sharpen);
+            break;
+            default:
+                printf("Invalid choice. Please select a number between 1-5.\n");
+            continue;
+        }
+        break;
+    }
+
+    return output;
+}
+
+
+void bmp8_applyFilter(t_bmp8 *img, float **kernel) {
+    int n = 3/2;
+    unsigned char *tempData = (unsigned char *)malloc(img->dataSize);
+    int width = img->width;
+    int height = img->height;
+
+    for (int y = n; y < height - n; y++) {
+        for (int x = n; x < width - n; x++) {
+            float sum = 0.0;
+
+            for (int ky = -n; ky <= n; ky++) {
+                for (int kx = -n; kx <= n; kx++) {
+                    unsigned char pixel = img->data[(y + ky) * width + (x + kx)];
+                    sum += pixel * kernel[ky + n][kx + n];
+                }
+            }
+
+            if (sum < 0) sum = 0;
+            if (sum > 255) sum = 255;
+            tempData[y * width + x] = (unsigned char)sum;
+        }
+    }
+
+    for (int y = n; y < height - n; y++) {
+        for (int x = n; x < width - n; x++) {
+            img->data[y * width + x] = tempData[y * width + x];
+        }
+    }
+
+    free(tempData);
+    free_kernel(kernel);
+}
