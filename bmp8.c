@@ -3,7 +3,7 @@
 t_bmp8 *bmp8_loadImage(const char *filename) {
     FILE *file = fopen(filename, "rb");
     if (!file) {
-        printf("Error opening file");
+        printf("Error opening file.\n");
         return NULL;
     }
 
@@ -41,7 +41,7 @@ t_bmp8 *bmp8_loadImage(const char *filename) {
 void bmp8_saveImage(const char *filename, t_bmp8 *img) {
     FILE *file = fopen(filename, "wb");
     if (!file) {
-        printf("Error opening file for writing");
+        printf("Error opening file for writing.\n");
         return;
     }
 
