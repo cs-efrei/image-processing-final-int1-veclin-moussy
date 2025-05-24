@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <math.h>
 
 typedef struct {
     unsigned char header[54];
@@ -28,5 +29,9 @@ float** create_kernel(float data[3][3]);
 void free_kernel(float** kernel);
 float** init_kernel();
 void bmp8_applyFilter(t_bmp8 *img, float **kernel);
+
+unsigned int * bmp8_computeHistogram(t_bmp8 * img);
+unsigned int * bmp8_computeCDF(unsigned int * hist);
+void bmp8_equalize(t_bmp8 * img);
 
 #endif // BMP8_H
