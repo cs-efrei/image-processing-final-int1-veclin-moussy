@@ -1,3 +1,0 @@
-C:/Users/rafyv/CLionProjects/image-processing-veclin-moussy-int1/cmake-build-debug/CMakeFiles/image_processing_veclin_moussy_int1.dir
-C:/Users/rafyv/CLionProjects/image-processing-veclin-moussy-int1/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/rafyv/CLionProjects/image-processing-veclin-moussy-int1/cmake-build-debug/CMakeFiles/rebuild_cache.dir
