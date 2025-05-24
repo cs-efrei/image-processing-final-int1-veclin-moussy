@@ -1,7 +1,11 @@
 #include "bmp8.h"
 #include "utils.h"
+#include "bmp24.h"
 
 int main() {
+    t_bmp24 * imga = bmp24_loadImage("../flowers_color.bmp");
+    bmp24_saveImage(imga, "copy_flowers.bmp");
+    bmp24_free(imga);
     t_bmp8* img = NULL;
     char filename[256];
     int choice;
