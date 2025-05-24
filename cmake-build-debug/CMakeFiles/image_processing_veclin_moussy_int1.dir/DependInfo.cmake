@@ -8,10 +8,10 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "C:/Users/rafyv/Documents/GitHub/image-processing-veclin-moussy-int1/bmp24.c" "CMakeFiles/image_processing_veclin_moussy_int1.dir/bmp24.c.obj" "gcc" "CMakeFiles/image_processing_veclin_moussy_int1.dir/bmp24.c.obj.d"
-  "C:/Users/rafyv/Documents/GitHub/image-processing-veclin-moussy-int1/bmp8.c" "CMakeFiles/image_processing_veclin_moussy_int1.dir/bmp8.c.obj" "gcc" "CMakeFiles/image_processing_veclin_moussy_int1.dir/bmp8.c.obj.d"
-  "C:/Users/rafyv/Documents/GitHub/image-processing-veclin-moussy-int1/main.c" "CMakeFiles/image_processing_veclin_moussy_int1.dir/main.c.obj" "gcc" "CMakeFiles/image_processing_veclin_moussy_int1.dir/main.c.obj.d"
-  "C:/Users/rafyv/Documents/GitHub/image-processing-veclin-moussy-int1/utils.c" "CMakeFiles/image_processing_veclin_moussy_int1.dir/utils.c.obj" "gcc" "CMakeFiles/image_processing_veclin_moussy_int1.dir/utils.c.obj.d"
+  "C:/Users/rafyv/CLionProjects/image-processing-veclin-moussy-int1/bmp24.c" "CMakeFiles/image_processing_veclin_moussy_int1.dir/bmp24.c.obj" "gcc" "CMakeFiles/image_processing_veclin_moussy_int1.dir/bmp24.c.obj.d"
+  "C:/Users/rafyv/CLionProjects/image-processing-veclin-moussy-int1/bmp8.c" "CMakeFiles/image_processing_veclin_moussy_int1.dir/bmp8.c.obj" "gcc" "CMakeFiles/image_processing_veclin_moussy_int1.dir/bmp8.c.obj.d"
+  "C:/Users/rafyv/CLionProjects/image-processing-veclin-moussy-int1/main.c" "CMakeFiles/image_processing_veclin_moussy_int1.dir/main.c.obj" "gcc" "CMakeFiles/image_processing_veclin_moussy_int1.dir/main.c.obj.d"
+  "C:/Users/rafyv/CLionProjects/image-processing-veclin-moussy-int1/utils.c" "CMakeFiles/image_processing_veclin_moussy_int1.dir/utils.c.obj" "gcc" "CMakeFiles/image_processing_veclin_moussy_int1.dir/utils.c.obj.d"
   )
 
 # Targets to which this target links which contain Fortran sources.
