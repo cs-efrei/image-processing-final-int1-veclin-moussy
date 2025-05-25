@@ -70,7 +70,15 @@ int main() {
                 }
                 break;
 
-            case 5: // Exit
+            case 5:
+                if (img) {
+                    bmp8_equalize(img);
+                } else {
+                    printf("No image loaded!\n");
+                }
+                break;
+
+            case 6: // Exit
                 if (img) bmp8_free(img);
                 printf("Exiting program.\n");
                 return 0;
@@ -79,6 +87,4 @@ int main() {
                 printf("Invalid choice! Please try again.\n");
         }
     }
-
-    return 0;
 }

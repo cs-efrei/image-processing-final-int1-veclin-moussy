@@ -6,6 +6,7 @@ void print_menu() {
     printf("2. Save image\n");
     printf("3. Apply filter\n");
     printf("4. Show image info\n");
-    printf("5. Exit\n");
+    printf("5. Equalize image\n");
+    printf("6. Exit\n");
     printf("Enter your choice: ");
 }
