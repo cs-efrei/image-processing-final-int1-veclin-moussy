@@ -1,7 +1,12 @@
 #include "bmp8.h"
 #include "utils.h"
+#include "bmp24.h"
 
 int main() {
+    t_bmp24 * imga = bmp24_loadImage("../flowers_color.bmp");
+    bmp24_apply_filter(imga, 7);
+    bmp24_saveImage(imga, "copy_flowers.bmp");
+    bmp24_free(imga);
     t_bmp8* img = NULL;
     char filename[256];
     int choice;
@@ -70,15 +75,7 @@ int main() {
                 }
                 break;
 
-            case 5:
-                if (img) {
-                    bmp8_equalize(img);
-                } else {
-                    printf("No image loaded!\n");
-                }
-                break;
-
-            case 6: // Exit
+            case 5: // Exit
                 if (img) bmp8_free(img);
                 printf("Exiting program.\n");
                 return 0;
@@ -87,4 +84,6 @@ int main() {
                 printf("Invalid choice! Please try again.\n");
         }
     }
+
+    return 0;
 }
