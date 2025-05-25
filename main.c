@@ -1,89 +1,28 @@
-#include "bmp8.h"
+/**
+* main.c
+ * Author: Rafael Veclin
+ *
+ * Description:
+ * This is the entry point of the project. It initializes the application by
+ * calling the main menu function from the utils module. The main function
+ * serves to start the program's user interface and handle the initial user
+ * interactions.
+ *
+ * Role in the project:
+ * Acts as the launcher for the application, directing the flow to the main menu.
+ */
+
 #include "utils.h"
-#include "bmp24.h"
 
+/**
+ * main
+ *
+ * Starts the application by invoking the main menu.
+ *
+ * Returns:
+ * 0 - Indicates successful execution of the program.
+ */
 int main() {
-    t_bmp24 * imga = bmp24_loadImage("../flowers_color.bmp");
-    bmp24_apply_filter(imga, 7);
-    bmp24_saveImage(imga, "copy_flowers.bmp");
-    bmp24_free(imga);
-    t_bmp8* img = NULL;
-    char filename[256];
-    int choice;
-
-    while (1) {
-        print_menu();
-        scanf("%d", &choice);
-        getchar(); // Consume newline
-
-        switch (choice) {
-            case 1: // Load image
-                printf("Enter image filename: ");
-                fgets(filename, sizeof(filename), stdin);
-                {
-                    size_t len = strlen(filename);
-                    if (len > 0 && filename[len-1] == '\n') {
-                        filename[len-1] = '\0';
-                    }
-                }
-
-                if (img) bmp8_free(img);
-                img = bmp8_loadImage(filename);
-
-                if (img) {
-                    printf("Image loaded successfully!\n");
-                    bmp8_printInfo(img);
-                } else {
-                    printf("Failed to load image.\n");
-                }
-                break;
-
-            case 2: // Save image
-                if (!img) {
-                    printf("No image loaded!\n");
-                    break;
-                }
-
-                printf("Enter output filename: ");
-                fgets(filename, sizeof(filename), stdin);
-                {
-                    size_t len = strlen(filename);
-                    if (len > 0 && filename[len-1] == '\n') {
-                        filename[len-1] = '\0';
-                    }
-                }
-
-                bmp8_saveImage(filename, img);
-                printf("Image saved successfully!\n");
-                break;
-
-            case 3: // Apply filter
-                if (!img) {
-                    printf("No image loaded!\n");
-                    break;
-                }
-                float** kernel = init_kernel();
-                bmp8_applyFilter(img, kernel);
-                printf("Filter applied successfully!\n");
-                break;
-
-            case 4: // Show image info
-                if (img) {
-                    bmp8_printInfo(img);
-                } else {
-                    printf("No image loaded!\n");
-                }
-                break;
-
-            case 5: // Exit
-                if (img) bmp8_free(img);
-                printf("Exiting program.\n");
-                return 0;
-
-            default:
-                printf("Invalid choice! Please try again.\n");
-        }
-    }
-
+    main_menu();  // Call to display and handle the main menu interface
     return 0;
 }
