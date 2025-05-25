@@ -10,4 +10,8 @@ add_executable(image_processing_veclin_moussy_int1
         bmp24.c
         bmp24.h
         utils.c
-        utils.h)
+        utils.h
+        equalize8.c
+        equalize8.h
+        equalize24.c
+        equalize24.h)

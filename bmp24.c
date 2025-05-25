@@ -1,8 +1,33 @@
-#include "bmp24.h"
-#include "bmp8.h"
-#include "utils.h"
+/**
+* bmp24.c
+ * Author: Clement Moussy
+ *
+ * Description:
+ * Implementation of functions for manipulating 24-bit BMP images.
+ * Provides memory management for pixel data, reading/writing BMP file headers and pixel data,
+ * and common image processing operations such as negative, grayscale conversion,
+ * brightness adjustment, and applying convolution filters.
+ *
+ * Role in the project:
+ * Core image handling module for 24-bit BMP images, enabling reading from disk,
+ * in-memory manipulation, and saving back to disk with various image processing utilities.
+ */
 
-// Allocate memory for pixel data
+
+#include "bmp24.h"
+
+
+/**
+ * bmp24_allocateDataPixels
+ * Allocates memory for a 2D array of pixels.
+ *
+ * Parameters:
+ * width (int): Width of the image.
+ * height (int): Height of the image.
+ *
+ * Returns:
+ * t_pixel**: Pointer to allocated 2D pixel array.
+ */
 t_pixel **bmp24_allocateDataPixels(int width, int height) {
     t_pixel **pixels = malloc(height * sizeof(t_pixel *));
     if (!pixels) {
@@ -24,7 +49,15 @@ t_pixel **bmp24_allocateDataPixels(int width, int height) {
     return pixels;
 }
 
-// Free memory allocated for pixel data
+
+/**
+ * bmp24_freeDataPixels
+ * Frees memory allocated for a 2D array of pixels.
+ *
+ * Parameters:
+ * pixels (t_pixel**): 2D pixel array to free.
+ * height (int): Number of rows.
+ */
 void bmp24_freeDataPixels(t_pixel **pixels, int height) {
     if (pixels) {
         for (int i = 0; i < height; i++) {
@@ -34,7 +67,19 @@ void bmp24_freeDataPixels(t_pixel **pixels, int height) {
     }
 }
 
-// Allocate memory for a BMP image
+
+/**
+ * bmp24_allocate
+ * Allocates memory for a 24-bit BMP image structure and its pixel data.
+ *
+ * Parameters:
+ * width (int): Image width.
+ * height (int): Image height.
+ * colorDepth (int): Color depth (usually 24).
+ *
+ * Returns:
+ * t_bmp24*: Pointer to allocated BMP image.
+ */
 t_bmp24 *bmp24_allocate(int width, int height, int colorDepth) {
     t_bmp24 *img = malloc(sizeof(t_bmp24));
     if (!img) {
@@ -54,7 +99,14 @@ t_bmp24 *bmp24_allocate(int width, int height, int colorDepth) {
     return img;
 }
 
-// Free memory allocated for a BMP image
+
+/**
+ * bmp24_free
+ * Frees memory allocated for a 24-bit BMP image structure and its data.
+ *
+ * Parameters:
+ * img (t_bmp24*): Pointer to the BMP image to free.
+ */
 void bmp24_free(t_bmp24 *img) {
     if (img) {
         bmp24_freeDataPixels(img->data, img->height);
@@ -62,19 +114,51 @@ void bmp24_free(t_bmp24 *img) {
     }
 }
 
-// Read raw data from file at a specific position
+
+/**
+ * file_rawRead
+ * Reads raw data from a specific position in a file.
+ *
+ * Parameters:
+ * position (uint32_t): File offset to start reading from.
+ * buffer (void*): Pointer to buffer where data is stored.
+ * size (uint32_t): Size of each element to read.
+ * n (size_t): Number of elements to read.
+ * file (FILE*): File pointer.
+ */
 void file_rawRead(uint32_t position, void *buffer, uint32_t size, size_t n, FILE *file) {
     fseek(file, position, SEEK_SET);
     fread(buffer, size, n, file);
 }
 
-// Write raw data to file at a specific position
+
+/**
+ * file_rawWrite
+ * Writes raw data to a specific position in a file.
+ *
+ * Parameters:
+ * position (uint32_t): File offset to start writing at.
+ * buffer (void*): Pointer to buffer containing data.
+ * size (uint32_t): Size of each element to write.
+ * n (size_t): Number of elements to write.
+ * file (FILE*): File pointer.
+ */
 void file_rawWrite(uint32_t position, void *buffer, uint32_t size, size_t n, FILE *file) {
     fseek(file, position, SEEK_SET);
     fwrite(buffer, size, n, file);
 }
 
-// Read a single pixel value from file
+
+/**
+ * bmp24_readPixelValue
+ * Reads a single pixel value from file at position (x, y) into image data.
+ *
+ * Parameters:
+ * image (t_bmp24*): Image to store the pixel.
+ * x (int): X-coordinate of the pixel.
+ * y (int): Y-coordinate of the pixel.
+ * file (FILE*): File pointer to read from.
+ */
 void bmp24_readPixelValue(t_bmp24 *image, int x, int y, FILE *file) {
     uint8_t bgr[3];
     fread(bgr, sizeof(uint8_t), 3, file);
@@ -83,7 +167,15 @@ void bmp24_readPixelValue(t_bmp24 *image, int x, int y, FILE *file) {
     image->data[y][x].red = bgr[2];
 }
 
-// Read all pixel data from file
+
+/**
+ * bmp24_readPixelData
+ * Reads pixel data from file into the BMP image.
+ *
+ * Parameters:
+ * image (t_bmp24*): Image to fill pixel data.
+ * file (FILE*): File pointer to read from.
+ */
 void bmp24_readPixelData(t_bmp24 *image, FILE *file) {
     int width = image->width;
     int height = image->height;
@@ -98,7 +190,17 @@ void bmp24_readPixelData(t_bmp24 *image, FILE *file) {
     }
 }
 
-// Write a single pixel value to file
+
+/**
+ * bmp24_writePixelValue
+ * Writes a single pixel value to file from image data at position (x, y).
+ *
+ * Parameters:
+ * image (t_bmp24*): Image providing the pixel.
+ * x (int): X-coordinate of the pixel.
+ * y (int): Y-coordinate of the pixel.
+ * file (FILE*): File pointer to write to.
+ */
 void bmp24_writePixelValue(t_bmp24 *image, int x, int y, FILE *file) {
     uint8_t bgr[3];
     bgr[0] = image->data[y][x].blue;
@@ -107,7 +209,15 @@ void bmp24_writePixelValue(t_bmp24 *image, int x, int y, FILE *file) {
     fwrite(bgr, sizeof(uint8_t), 3, file);
 }
 
-// Write all pixel data to file
+
+/**
+ * bmp24_writePixelData
+ * Writes pixel data from the BMP image to the file.
+ *
+ * Parameters:
+ * image (t_bmp24*): Image providing pixel data.
+ * file (FILE*): File pointer to write to.
+ */
 void bmp24_writePixelData(t_bmp24 *image, FILE *file) {
     int width = image->width;
     int height = image->height;
@@ -123,6 +233,17 @@ void bmp24_writePixelData(t_bmp24 *image, FILE *file) {
     }
 }
 
+
+/**
+ * bmp24_loadImage
+ * Loads a 24-bit BMP image from a file.
+ *
+ * Parameters:
+ * filename (const char*): Path to the BMP file.
+ *
+ * Returns:
+ * t_bmp24*: Pointer to the loaded BMP image, or NULL on failure.
+ */
 t_bmp24 *bmp24_loadImage(const char *filename) {
     // Load a BMP image from file
     FILE *file = fopen(filename, "rb");
@@ -169,6 +290,15 @@ t_bmp24 *bmp24_loadImage(const char *filename) {
     return image;
 }
 
+
+/**
+ * bmp24_saveImage
+ * Saves a 24-bit BMP image to a file.
+ *
+ * Parameters:
+ * img (t_bmp24*): Image to save.
+ * filename (const char*): Destination file path.
+ */
 void bmp24_saveImage(t_bmp24 *img, const char *filename) {
     // Save a BMP image to file
     FILE *file = fopen(filename, "wb");
@@ -186,6 +316,14 @@ void bmp24_saveImage(t_bmp24 *img, const char *filename) {
     fclose(file);
 }
 
+
+/**
+ * bmp24_negative
+ * Applies negative effect to the image by inverting each pixel's colors.
+ *
+ * Parameters:
+ * img (t_bmp24*): Image to modify.
+ */
 void bmp24_negative (t_bmp24* img) {
     //a function to inverse the colors in a 24 bit depth image
     for (int y = 0; y<img -> height; y++) {
@@ -197,6 +335,14 @@ void bmp24_negative (t_bmp24* img) {
     }
 }
 
+
+/**
+ * bmp24_grayscale
+ * Converts the image to grayscale.
+ *
+ * Parameters:
+ * img (t_bmp24*): Image to modify.
+ */
 void bmp24_grayscale (t_bmp24* img) {
     //a function to make an image grayscale
     for (int y = 0; y<img -> height; y++) {
@@ -210,6 +356,15 @@ void bmp24_grayscale (t_bmp24* img) {
     }
 }
 
+
+/**
+ * bmp24_brightness
+ * Adjusts the brightness of the image by adding a value to each pixel color component.
+ *
+ * Parameters:
+ * img (t_bmp24*): Image to modify.
+ * value (int): Amount to adjust brightness by.
+ */
 void bmp24_brightness (t_bmp24 * img, int value) {
     //a function to add brightness to every pixel, uses the cap function to cap the max brightness
     for (int y = 0; y<img -> height; y++) {
@@ -221,6 +376,21 @@ void bmp24_brightness (t_bmp24 * img, int value) {
     }
 }
 
+
+/**
+ * bmp24_convolution
+ * Applies a convolution kernel at pixel (x, y).
+ *
+ * Parameters:
+ * img (t_bmp24*): Image to process.
+ * x (int): X-coordinate of the pixel.
+ * y (int): Y-coordinate of the pixel.
+ * kernel (float**): Convolution kernel.
+ * kernelSize (int): Size of the kernel (assumed square).
+ *
+ * Returns:
+ * t_pixel: Resulting pixel after applying convolution.
+ */
 t_pixel bmp24_convolution(t_bmp24* img, int x, int y, float** kernel, int kernelSize) {
     float sum_red = 0.0f;
     float sum_green = 0.0f;
@@ -261,6 +431,14 @@ t_pixel bmp24_convolution(t_bmp24* img, int x, int y, float** kernel, int kernel
 }
 
 
+/**
+ * bmp24_apply_filter
+ * Applies a convolution filter to the entire image.
+ *
+ * Parameters:
+ * img (t_bmp24*): Image to modify.
+ * kernelSize (int): Size of the convolution kernel.
+ */
 void bmp24_apply_filter(t_bmp24* img, int kernelSize) {
     if (kernelSize <= (img->height /2)) {
         float** kernel = init_kernel();
@@ -285,4 +463,25 @@ void bmp24_apply_filter(t_bmp24* img, int kernelSize) {
     } else {
         fprintf(stderr, "Error: KernelSize bigger than the image, try again.\n");
     }
+}
+
+
+/**
+ * bmp24_printInfo
+ * Prints image information to the console.
+ *
+ * Parameters:
+ * img (t_bmp24*): Image to display info about.
+ */
+void bmp24_printInfo(t_bmp24 *img) {
+    if (!img) {
+        printf("No image loaded.\n");
+        return;
+    }
+    printf("BMP24 Image Info:\n");
+    printf("Width: %d px\n", img->width);
+    printf("Height: %d px\n", img->height);
+    printf("Color Depth: %d bits\n", img->colorDepth);
+    printf("File Size: %u bytes\n", img->header.size);
+    printf("Image Size (raw): %u bytes\n", img->header_info.imagesize);
 }

@@ -1,5 +1,30 @@
+/**
+* bmp8.c
+ * Authors: Rafael Veclin, Clement Moussy
+ *
+ * Description:
+ * Implements functions for loading, saving, freeing, and processing 8-bit BMP images.
+ * Includes image transformations such as negative, brightness adjustment, thresholding,
+ * and applying convolution filters.
+ *
+ * Role in the project:
+ * Provides the core functionality to manipulate 8-bit BMP images for the application.
+ */
+
+
 #include "bmp8.h"
 
+
+/**
+ * bmp8_loadImage
+ * Loads an 8-bit BMP image from a file.
+ *
+ * Parameters:
+ * filename (const char*): Path to the BMP file.
+ *
+ * Returns:
+ * t_bmp8*: Pointer to the loaded image structure, or NULL on failure.
+ */
 t_bmp8 *bmp8_loadImage(const char *filename) {
     FILE *file = fopen(filename, "rb");
     if (!file) {
@@ -38,6 +63,15 @@ t_bmp8 *bmp8_loadImage(const char *filename) {
     return img;
 }
 
+
+/**
+ * bmp8_saveImage
+ * Saves an 8-bit BMP image to a file.
+ *
+ * Parameters:
+ * filename (const char*): Destination file path.
+ * img (t_bmp8*): Pointer to the image to save.
+ */
 void bmp8_saveImage(const char *filename, t_bmp8 *img) {
     FILE *file = fopen(filename, "wb");
     if (!file) {
@@ -52,6 +86,14 @@ void bmp8_saveImage(const char *filename, t_bmp8 *img) {
     fclose(file);
 }
 
+
+/**
+ * bmp8_free
+ * Frees memory allocated for the BMP image data.
+ *
+ * Parameters:
+ * img (t_bmp8*): Pointer to the image to free.
+ */
 void bmp8_free(t_bmp8 *img) {
     if (img) {
         free(img->data);
@@ -59,6 +101,14 @@ void bmp8_free(t_bmp8 *img) {
     }
 }
 
+
+/**
+ * bmp8_printInfo
+ * Prints information about the BMP image to the console.
+ *
+ * Parameters:
+ * img (t_bmp8*): Pointer to the image.
+ */
 void bmp8_printInfo(t_bmp8 *img) {
     if (img) {
         printf("Image Info:\n");
@@ -69,15 +119,31 @@ void bmp8_printInfo(t_bmp8 *img) {
     }
 }
 
+
+/**
+ * bmp8_negative
+ * Applies a negative effect to the image by inverting pixel values.
+ *
+ * Parameters:
+ * img (t_bmp8*): Pointer to the image to modify.
+ */
 void bmp8_negative(t_bmp8 *img) {
     if (!img || !img->data) return;
 
     for (unsigned int i = 0; i < img->dataSize; i++) {
         img->data[i] = 255 - img->data[i];
     }
-    bmp8_saveImage("amg.bmp", img);
 }
 
+
+/**
+ * bmp8_brightness
+ * Adjusts the brightness of the image by adding a value to each pixel.
+ *
+ * Parameters:
+ * img (t_bmp8*): Pointer to the image to modify.
+ * value (int): Amount to adjust brightness by (positive or negative).
+ */
 void bmp8_brightness(t_bmp8 *img, int value) {
     if (!img || !img->data) return;
 
@@ -89,114 +155,34 @@ void bmp8_brightness(t_bmp8 *img, int value) {
 
         img->data[i] = (unsigned char)newVal;
     }
-    bmp8_saveImage("amg.bmp", img);
 }
 
+
+/**
+ * bmp8_threshold
+ * Applies a threshold filter to the image.
+ *
+ * Parameters:
+ * img (t_bmp8*): Pointer to the image to modify.
+ * threshold (int): Threshold value (0-255).
+ */
 void bmp8_threshold(t_bmp8 *img, int threshold) {
     if (!img || !img->data) return;
 
     for (unsigned int i = 0; i < img->dataSize; ++i) {
         img->data[i] = (img->data[i] >= threshold) ? 255 : 0;
     }
-    bmp8_saveImage("amg.bmp", img);
-}
-
-float** create_kernel(float data[3][3]) {
-    float** kernel = (float**)malloc(3 * sizeof(float*));
-    for (int i = 0; i < 3; i++) {
-        kernel[i] = (float*)malloc(3 * sizeof(float));
-        for (int j = 0; j < 3; j++) {
-            kernel[i][j] = data[i][j];
-        }
-    }
-    return kernel;
 }
 
 
-void free_kernel(float** kernel) {
-    for (int i = 0; i < 3; i++) {
-        free(kernel[i]);
-    }
-    free(kernel);
-}
-
-
-float** init_kernel() {
-    float box_blur[3][3] = {
-        {1.0/9, 1.0/9, 1.0/9},
-        {1.0/9, 1.0/9, 1.0/9},
-        {1.0/9, 1.0/9, 1.0/9}
-    };
-
-    float gaussian_blur[3][3] = {
-        {1.0/16, 2.0/16, 1.0/16},
-        {2.0/16, 4.0/16, 2.0/16},
-        {1.0/16, 2.0/16, 1.0/16}
-    };
-
-    float outline[3][3] = {
-        {-1, -1, -1},
-        {-1,  8, -1},
-        {-1, -1, -1}
-    };
-
-    float emboss[3][3] = {
-        {-2, -1,  0},
-        {-1,  1,  1},
-        { 0,  1,  2}
-    };
-
-    float sharpen[3][3] = {
-        { 0, -1,  0},
-        {-1,  5, -1},
-        { 0, -1,  0}
-    };
-
-    int choice;
-    float** output = NULL;
-
-    while (1) {
-        printf("\nSelect a filter:\n");
-        printf("1. Box blur\n");
-        printf("2. Gaussian blur\n");
-        printf("3. Outline\n");
-        printf("4. Emboss\n");
-        printf("5. Sharpen\n");
-        printf("Enter your choice (1-5): ");
-
-        if (scanf("%d", &choice) != 1) {
-            printf("Invalid input. Please enter a number.\n");
-            while (getchar() != '\n'); // Clear input buffer
-            continue;
-        }
-
-        switch(choice) {
-            case 1:
-                output = create_kernel(box_blur);
-            break;
-            case 2:
-                output = create_kernel(gaussian_blur);
-            break;
-            case 3:
-                output = create_kernel(outline);
-            break;
-            case 4:
-                output = create_kernel(emboss);
-            break;
-            case 5:
-                output = create_kernel(sharpen);
-            break;
-            default:
-                printf("Invalid choice. Please select a number between 1-5.\n");
-            continue;
-        }
-        break;
-    }
-
-    return output;
-}
-
-
+/**
+ * bmp8_applyFilter
+ * Applies a convolution filter to the image using the provided kernel.
+ *
+ * Parameters:
+ * img (t_bmp8*): Pointer to the image to modify.
+ * kernel (float**): 3x3 convolution kernel.
+ */
 void bmp8_applyFilter(t_bmp8 *img, float **kernel) {
     int n = 1;
     unsigned char *tempData = (unsigned char *)malloc(img->dataSize);
@@ -228,60 +214,4 @@ void bmp8_applyFilter(t_bmp8 *img, float **kernel) {
 
     free(tempData);
     free_kernel(kernel);
-}
-
-
-unsigned int * bmp8_computeHistogram(t_bmp8 * img) {
-    unsigned int * histogram = (unsigned int*)calloc(256, sizeof(unsigned int));
-    int width = img->width;
-    int height = img->height;
-
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-            unsigned char pixelValue = img->data[y * width + x];
-            histogram[pixelValue]++;
-        }
-    }
-    return histogram;
-}
-
-
-
-unsigned int * bmp8_computeCDF(unsigned int * hist) {
-    unsigned int * cdf = (unsigned int*)calloc(256, sizeof(unsigned int));
-    unsigned int * hist_eq = (unsigned int*)calloc(256, sizeof(unsigned int));
-
-    cdf[0] = hist[0];
-    for (int i = 1; i < 256; i++) {
-        cdf[i] = cdf[i-1] + hist[i];
-    }
-
-    unsigned int cdfmin = 0;
-    for (int i = 0; i < 256; i++) {
-        if (cdf[i] != 0) {
-            cdfmin = cdf[i];
-            break; // cdf is sorted in increasing order, so the first non-0 value is the smallest one
-        }
-    }
-
-    unsigned int N = cdf[255];
-    for (int i = 0; i < 256; i++) {
-        hist_eq[i] = (unsigned int)round(((double)(cdf[i] - cdfmin) / (N - cdfmin)) * 255);
-        if (hist_eq[i] > 255) hist_eq[i] = 255;
-        if (hist_eq[i] < 0) hist_eq[i] = 0;
-    }
-
-    free(cdf);
-    return hist_eq;
-}
-
-
-void bmp8_equalize(t_bmp8 * img) {
-    unsigned int * hist = bmp8_computeHistogram(img);
-    unsigned int * hist_eq = bmp8_computeCDF(hist);
-    for (int i = 0; i < img->dataSize; i++) {
-        img->data[i] = hist_eq[img->data[i]] ;
-    }
-    free(hist_eq);
-    free(hist);
 }
