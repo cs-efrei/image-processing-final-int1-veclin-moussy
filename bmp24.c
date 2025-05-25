@@ -1,4 +1,6 @@
 #include "bmp24.h"
+#include "bmp8.h"
+#include "utils.h"
 
 // Allocate memory for pixel data
 t_pixel **bmp24_allocateDataPixels(int width, int height) {
@@ -121,8 +123,8 @@ void bmp24_writePixelData(t_bmp24 *image, FILE *file) {
     }
 }
 
-// Load a BMP image from file
 t_bmp24 *bmp24_loadImage(const char *filename) {
+    // Load a BMP image from file
     FILE *file = fopen(filename, "rb");
     if (!file) {
         fprintf(stderr, "Error: Unable to open file %s for reading.\n", filename);
@@ -167,8 +169,8 @@ t_bmp24 *bmp24_loadImage(const char *filename) {
     return image;
 }
 
-// Save a BMP image to file
 void bmp24_saveImage(t_bmp24 *img, const char *filename) {
+    // Save a BMP image to file
     FILE *file = fopen(filename, "wb");
     if (!file) {
         fprintf(stderr, "Error: Unable to open file %s for writing.\n", filename);
@@ -182,4 +184,105 @@ void bmp24_saveImage(t_bmp24 *img, const char *filename) {
 
     bmp24_writePixelData(img, file);
     fclose(file);
+}
+
+void bmp24_negative (t_bmp24* img) {
+    //a function to inverse the colors in a 24 bit depth image
+    for (int y = 0; y<img -> height; y++) {
+        for (int x = 0; x<img -> width; x++) {
+            (img -> data[y][x]).red = 255 - (img -> data[y][x]).red;
+            (img -> data[y][x]).green = 255 - (img -> data[y][x]).green;
+            (img -> data[y][x]).blue = 255 - (img -> data[y][x]).blue;
+        }
+    }
+}
+
+void bmp24_grayscale (t_bmp24* img) {
+    //a function to make an image grayscale
+    for (int y = 0; y<img -> height; y++) {
+        for (int x = 0; x<img -> width; x++) {
+            //calculate the average of all 3 primary colors
+            int avgval = ((img -> data[y][x]).blue + (img -> data[y][x]).green + (img -> data[y][x]).red)/3;
+            (img -> data[y][x]).red = avgval;
+            (img -> data[y][x]).green = avgval;
+            (img -> data[y][x]).blue = avgval;
+        }
+    }
+}
+
+void bmp24_brightness (t_bmp24 * img, int value) {
+    //a function to add brightness to every pixel, uses the cap function to cap the max brightness
+    for (int y = 0; y<img -> height; y++) {
+        for (int x = 0; x<img -> width; x++) {
+            (img -> data[y][x]).red = cap((img -> data[y][x]).red,value,255);
+            (img -> data[y][x]).green = cap((img -> data[y][x]).green,value,255);
+            (img -> data[y][x]).blue = cap((img -> data[y][x]).blue,value,255);
+        }
+    }
+}
+
+t_pixel bmp24_convolution(t_bmp24* img, int x, int y, float** kernel, int kernelSize) {
+    float sum_red = 0.0f;
+    float sum_green = 0.0f;
+    float sum_blue = 0.0f;
+
+    int radius = kernelSize / 2;
+
+    for (int i = -radius; i <= radius; i++) {
+        for (int j = -radius; j <= radius; j++) {
+            // Calculate neighbor coordinates
+            int nx = x + i;
+            int ny = y + j;
+
+            // Handle edge pixels by clamping coordinates
+            if (nx < 0) nx = 0;
+            if (ny < 0) ny = 0;
+            if (nx >= img->width) nx = img->width - 1;
+            if (ny >= img->height) ny = img->height - 1;
+
+            // Get the kernel value for this position
+            float kernel_val = kernel[i + radius][j + radius];
+
+            // Get the pixel and multiply by kernel value
+            t_pixel pixel = img->data[ny][nx];
+            sum_red += pixel.red * kernel_val;
+            sum_green += pixel.green * kernel_val;
+            sum_blue += pixel.blue * kernel_val;
+        }
+    }
+
+    // Create and return the resulting pixel
+    t_pixel result;
+    result.red = clamp(sum_red);
+    result.green = clamp(sum_green);
+    result.blue = clamp(sum_blue);
+
+    return result;
+}
+
+
+void bmp24_apply_filter(t_bmp24* img, int kernelSize) {
+    if (kernelSize <= (img->height /2)) {
+        float** kernel = init_kernel();
+        // Create a temporary copy of the image to store results
+        t_pixel** temp = (t_pixel**)malloc(img->height * sizeof(t_pixel*));
+        for (int y = 0; y < img->height; y++) {
+            temp[y] = (t_pixel*)malloc(img->width * sizeof(t_pixel));
+            for (int x = 0; x < img->width; x++) {
+                //apply convolution to each pixel
+                temp[y][x] = bmp24_convolution(img, x, y, kernel, kernelSize);
+            }
+        }
+
+        // Copy the results back to the original image
+        for (int y = 0; y < img->height; y++) {
+            for (int x = 0; x < img->width; x++) {
+                img->data[y][x] = temp[y][x];
+            }
+            free(temp[y]);
+        }
+        free(temp);
+    } else {
+        fprintf(stderr, "Error: KernelSize bigger than the image, try again.\n");
+    }
 }

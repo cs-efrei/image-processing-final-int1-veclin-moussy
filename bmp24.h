@@ -74,5 +74,10 @@ void bmp24_writePixelValue(t_bmp24 *image, int x, int y, FILE *file);
 void bmp24_writePixelData(t_bmp24 *image, FILE *file);
 void file_rawRead(uint32_t position, void *buffer, uint32_t size, size_t n, FILE *file);
 void file_rawWrite(uint32_t position, void *buffer, uint32_t size, size_t n, FILE *file);
+void bmp24_negative (t_bmp24* img);
+void bmp24_grayscale (t_bmp24* img);
+void bmp24_brightness (t_bmp24 * img, int value);
+t_pixel bmp24_convolution(t_bmp24* img, int x, int y, float** kernel, int kernelSize);
+void bmp24_apply_filter(t_bmp24* img, int kernelSize);
 
 #endif // BMP24_H

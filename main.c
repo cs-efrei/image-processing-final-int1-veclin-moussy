@@ -4,6 +4,7 @@
 
 int main() {
     t_bmp24 * imga = bmp24_loadImage("../flowers_color.bmp");
+    bmp24_apply_filter(imga, 7);
     bmp24_saveImage(imga, "copy_flowers.bmp");
     bmp24_free(imga);
     t_bmp8* img = NULL;
